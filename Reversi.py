@@ -5,6 +5,29 @@ def cambiarJugador(turno) -> int:
 		turno = 0
 	return turno
 
+def consumo(tablero, fila, columna, turno) -> [[int]]:
+	consumidas = []
+	for i in [[-1,0], [1,0], [0,1], [0,-1], [-1,-1], [-1,1], [1,1], [1,-1]]:
+		j, posibles_consumidas, vecino, fin_de_linea = 1, [], True, False
+		while j < 8 and vecino and not fin_de_linea:		 
+			if j == 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] != 2 - turno:
+				vecino = False
+			elif j >= 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 2 - turno:
+				posibles_consumidas.append([fila + j*i[0],columna + j*i[1]])			
+			elif j > 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == turno + 1:
+				consumidas = consumidas + posibles_consumidas
+				posibles_consumidas = []
+			elif j > 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 0:
+				fin_de_linea = True
+			j = j+1	
+	for i in consumidas:
+		tablero[i[0]][i[1]] = turno+1
+	return tablero
+	""" Teniendo en cuenta que hay que demostrar esta funcion, tal vez habrá que cambiarla. Ademas, se tiene que este subprograma
+	debe separarse en otros tres subprogramas (consumoVertical,consumoHorizontal y consumoDiagonal) sin embargo, la idea de esto es tener adelantado
+	parte de la lógica """
+
+
 def dibujarJugada(tablero, fila, columna, turno) -> "void": # Debe entregrase el martes!!!!!!
 	# Precondicion
 	assert(0 <= fila < 8 and 0 <= columna < 8)
@@ -23,7 +46,7 @@ def inicializarTablero() -> [[int]]: # Debe entregrase el martes!!!!!!
 	tablero[3][3],tablero[4][4] = 1, 1
 	tablero[3][4],tablero[4][3] = 2, 2
 	# Post condicion
-	assert(all(all(tablero[i][j] == 0 for i in range(0,8) if i != 3 and i != 4) for j in range(0,8)))	
+	assert(all(all(tablero[i][j] == 0 for i in range(0,8) if i != 3 and i != 4) for j in range(0,8)))		
 	# ///////////////// 
 	for i in tablero:
 		print(i)
@@ -117,6 +140,7 @@ tablero = inicializarTablero()
 while True:
 	jugada = obtenerJugada()	
 	if esValida(tablero, jugada[0], jugada[1], turno):
+		tablero = consumo(tablero, jugada[0], jugada[1], turno)
 		dibujarJugada(tablero, jugada[0], jugada[1], turno)
 		turno = cambiarJugador(turno)
 	elif not esValida(tablero,jugada[0], jugada[1], turno):
