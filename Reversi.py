@@ -31,155 +31,37 @@ def inicializarTablero() -> [[int]]: # Debe entregrase el martes!!!!!!
 	return tablero
 
 def esValida(tablero, fila, columna, turno) -> bool: 
-	# Casilla no es distinta de vacia
+	# Casilla no esta ocupada por una ficha
 	if tablero[fila][columna] == 0:
 		casillaValida = True
 	elif tablero[fila][columna] != 0:
 		casillaValida = False
-	# Comprueba en todas direcciones
+	# Comprueba la jugada en todas las direcciones
 	cambiadas = 0
-	i, vecino, contador, flanqueada = 1, True, 0, False # Comprueba hacia arriba
-	while i < 8 and vecino and not flanqueada: 
-		if i == 1 and 0 <= fila-i < 8 and tablero[fila-i][columna] != 2 - turno :
-			vecino = False
-		elif i == 1 and 0 <= fila-i < 8 and tablero[fila-i][columna] == 2 - turno:
-			contador = contador + 1
-		elif i > 1 and 0 <= fila-i < 8 and tablero[fila-i][columna] == turno + 1:
-			flanqueada = True
-		elif i > 1 and 0 <= fila-i < 8 and tablero[fila-i][columna] == 2-turno:
-			contador = contador + 1
-		i = i + 1
-	if flanqueada:
-		cambiadas = cambiadas + contador
-	elif not flanqueada:
-		pass
-	
-
-	i, vecino, contador, flanqueada = 1, True, 0, False # Comprueba hacia abajo
-	while i < 8 and vecino and not flanqueada: 
-		if i == 1 and 0 <= fila+i < 8 and tablero[fila+i][columna] != 2 - turno :
-			vecino = False
-		elif i == 1 and 0 <= fila+i < 8 and tablero[fila+i][columna] == 2 - turno:
-			contador = contador + 1
-		elif i > 1 and 0 <= fila+i < 8 and tablero[fila+i][columna] == turno + 1:
-			flanqueada = True
-		elif i > 1 and 0 <= fila+i < 8 and tablero[fila+i][columna] == 2-turno:
-			contador = contador + 1
-		i = i + 1
-	if flanqueada:
-		cambiadas = cambiadas + contador
-	elif not flanqueada:
-		pass
-	
-
-	i, vecino, contador, flanqueada = 1, True, 0, False # Comprueba hacia la derecha
-	while i < 8 and vecino and not flanqueada: 
-		if i == 1 and 0 <= columna+i < 8 and tablero[fila][columna+i] != 2 - turno :
-			vecino = False
-		elif i == 1 and 0 <= columna+i < 8 and tablero[fila][columna+i] == 2 - turno:
-			contador = contador + 1
-		elif i > 1 and 0 <= columna+i < 8 and tablero[fila][columna+i] == turno + 1:
-			flanqueada = True
-		elif i > 1 and 0 <= columna+i < 8 and tablero[fila][columna+i] == 2-turno:
-			contador = contador + 1
-		i = i + 1
-	if flanqueada:
-		cambiadas = cambiadas + contador
-	elif not flanqueada:
-		pass
-	
-
-	i, vecino, contador, flanqueada = 1, True, 0, False # Comprueba hacia la izquierda
-	while i < 8 and vecino and not flanqueada: 
-		if i == 1 and 0 <= columna-i < 8 and tablero[fila][columna-i] != 2 - turno :
-			vecino = False
-		elif i == 1 and 0 <= columna-i < 8 and tablero[fila][columna-i] == 2 - turno:
-			contador = contador + 1
-		elif i > 1 and 0 <= columna-i < 8 and tablero[fila][columna-i] == turno + 1:
-			flanqueada = True
-		elif i > 1 and 0 <= columna-i < 8 and tablero[fila][columna-i] == 2-turno:
-			contador = contador + 1
-		i = i + 1
-	if flanqueada:
-		cambiadas = cambiadas + contador
-	elif not flanqueada:
-		pass
-	
-
-	i, vecino, contador, flanqueada = 1, True, 0, False # Comprueba hacia diagonal arriba-izquierda
-	while i < 8 and vecino and not flanqueada: 
-		if i == 1 and 0 <= fila-i < 8 and 0 <= columna-i < 8 and tablero[fila-i][columna-i] != 2 - turno :
-			vecino = False
-		elif i == 1 and 0 <= fila-i < 8 and 0 <= columna-i < 8 and tablero[fila-i][columna-i] == 2 - turno:
-			contador = contador + 1
-		elif i > 1 and 0 <= fila-i < 8 and 0 <= columna-i < 8 and tablero[fila-i][columna-i] == turno + 1:
-			flanqueada = True
-		elif i > 1 and 0 <= fila-i < 8 and 0 <= columna-i < 8 and tablero[fila-i][columna-i] == 2-turno:
-			contador = contador + 1
-		i = i + 1
-	if flanqueada:
-		cambiadas = cambiadas + contador
-	elif not flanqueada:
-		pass
-	
-
-	i, vecino, contador, flanqueada = 1, True, 0, False # Comprueba hacia diagonal arriba-derecha
-	while i < 8 and vecino and not flanqueada: 
-		if i == 1 and 0 <= fila-i < 8 and 0 <= columna+i < 8 and tablero[fila-i][columna+i] != 2 - turno :
-			vecino = False
-		elif i == 1 and 0 <= fila-i < 8 and 0 <= columna+i < 8 and tablero[fila-i][columna+i] == 2 - turno:
-			contador = contador + 1
-		elif i > 1 and 0 <= fila-i < 8 and 0 <= columna+i < 8 and tablero[fila-i][columna+i] == turno + 1:
-			flanqueada = True
-		elif i > 1 and 0 <= fila-i < 8 and 0 <= columna+i < 8 and tablero[fila-i][columna+i] == 2-turno:
-			contador = contador + 1
-		i = i + 1
-	if flanqueada:
-		cambiadas = cambiadas + contador
-	elif not flanqueada:
-		pass
-	
-
-	i, vecino, contador, flanqueada = 1, True, 0, False # Comprueba hacia diagonal abajo-derecha
-	while i < 8 and vecino and not flanqueada: 
-		if i == 1 and 0 <= fila+i < 8 and 0 <= columna+i < 8 and tablero[fila+i][columna+i] != 2 - turno :
-			vecino = False
-		elif i == 1 and 0 <= fila+i < 8 and 0 <= columna+i < 8 and tablero[fila+i][columna+i] == 2 - turno:
-			contador = contador + 1
-		elif i > 1 and 0 <= fila+i < 8 and 0 <= columna+i < 8 and tablero[fila+i][columna+i] == turno + 1:
-			flanqueada = True
-		elif i > 1 and 0 <= fila+i < 8 and 0 <= columna+i < 8 and tablero[fila+i][columna+i] == 2-turno:
-			contador = contador + 1
-		i = i + 1
-	if flanqueada:
-		cambiadas = cambiadas + contador
-	elif not flanqueada:
-		pass
-	
-
-	i, vecino, contador, flanqueada = 1, True, 0, False # Comprueba hacia diagonal abajo-izquierda
-	while i < 8 and vecino and not flanqueada: 
-		if i == 1 and 0 <= fila+i < 8 and 0 <= columna-i < 8 and tablero[fila+i][columna-i] != 2 - turno :
-			vecino = False
-		elif i == 1 and 0 <= fila+i < 8 and 0 <= columna-i < 8 and tablero[fila+i][columna-i] == 2 - turno:
-			contador = contador + 1
-		elif i > 1 and 0 <= fila+i < 8 and 0 <= columna-i < 8 and tablero[fila+i][columna-i] == turno + 1:
-			flanqueada = True
-		elif i > 1 and 0 <= fila+i < 8 and 0 <= columna-i < 8 and tablero[fila+i][columna-i] == 2-turno:
-			contador = contador + 1
-		i = i + 1
-	if flanqueada:
-		cambiadas = cambiadas + contador
-	elif not flanqueada:
-		pass
-	
+	for i in [[-1,0], [1,0], [0,1], [0,-1], [-1,-1], [-1,1], [1,1], [1,-1]]:
+		j, vecino, contador, flanqueada = 1, True, 0, False 
+		while j < 8 and vecino and not flanqueada: 
+			if j == 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] != 2 - turno:
+				vecino = False
+			elif j == 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 2 - turno:
+				contador = contador + 1
+			elif j > 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == turno + 1:
+				flanqueada = True
+			elif j > 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 2-turno:
+				contador = contador + 1
+			j = j + 1
+		if flanqueada:
+			cambiadas = cambiadas + contador
+		elif not flanqueada:
+			pass
+		
 	# Comprueba si hubieron fichas que cambiaron de color
 	if cambiadas == 0:
 		cambio = False
 	elif cambiadas > 0:
 		cambio = True
 
-	# Comprobacion final
+	# Comprueba que la jugada sea valida
 	if cambio and casillaValida:
 		esvalida = True
 	elif not cambio or not casillaValida:
@@ -211,10 +93,6 @@ def otraPartida() -> bool:
 	return respuesta
 
 
-	
-
-
-
 # "Aproximacion de como deber ser el programa"
 """
 turno = 0
@@ -242,7 +120,7 @@ while True:
 		dibujarJugada(tablero, jugada[0], jugada[1], turno)
 		turno = cambiarJugador(turno)
 	elif not esValida(tablero,jugada[0], jugada[1], turno):
-		print("Jugada invalida, prueba otra vez")
+		print("Jugada invalida, prueba otra vez\n")
 
 
 	
