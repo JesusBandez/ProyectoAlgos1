@@ -15,8 +15,8 @@ def consumo(tablero, fila, columna, turno) -> [[int]]:
 			elif j >= 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 2 - turno:
 				posibles_consumidas.append([fila + j*i[0],columna + j*i[1]])			
 			elif j > 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == turno + 1:
-				consumidas = consumidas + posibles_consumidas
-				posibles_consumidas = []
+				consumidas = consumidas + posibles_consumidas				
+				fin_de_linea = True
 			elif j > 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 0:
 				fin_de_linea = True
 			j = j+1	
@@ -46,7 +46,7 @@ def inicializarTablero() -> [[int]]: # Debe entregrase el martes!!!!!!
 	tablero[3][3],tablero[4][4] = 1, 1
 	tablero[3][4],tablero[4][3] = 2, 2
 	# Post condicion
-	assert(all(all(tablero[i][j] == 0 for i in range(0,8) if i != 3 and i != 4) for j in range(0,8)))		
+	assert(all(all(tablero[i][j] == 0 for i in range(0,8) if i != 3 and i != 4) for j in range(0,8)))
 	# ///////////////// 
 	for i in tablero:
 		print(i)
