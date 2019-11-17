@@ -1,11 +1,11 @@
-def cambiarJugador(turno) -> int:
+def cambiarJugador(turno:int) -> int:
 	if turno == 0:
 		turno = 1
 	elif turno ==1:
 		turno = 0
 	return turno
 
-def consumo(tablero, fila, columna, turno) -> [[int]]:
+def consumo(tablero:[[int]], fila:int, columna:int, turno:int) -> [[int]]:
 	consumidas = []
 	for i in [[-1,0], [1,0], [0,1], [0,-1], [-1,-1], [-1,1], [1,1], [1,-1]]:
 		j, posibles_consumidas, vecino, fin_de_linea = 1, [], True, False
@@ -28,9 +28,9 @@ def consumo(tablero, fila, columna, turno) -> [[int]]:
 	parte de la lógica """
 
 
-def dibujarJugada(tablero, fila, columna, turno) -> "void": # Debe entregrase el martes!!!!!!
+def dibujarJugada(tablero:[[int]], fila:int, columna:int, turno:int) -> "void": # Debe entregrarse el martes!!!!!!
 	# Precondicion
-	assert(0 <= fila < 8 and 0 <= columna < 8)
+	assert(0 <= fila < 8 and 0 <= columna < 8 and 0 <= turno < 2)
 	tablero[fila][columna] = turno+1
 	# Post condicion
 	assert(tablero[fila][columna] == turno+1)
@@ -39,10 +39,10 @@ def dibujarJugada(tablero, fila, columna, turno) -> "void": # Debe entregrase el
 		print(i)
 	# \\\\\\\\\\\\\\\\\\
 
-def inicializarTablero() -> [[int]]: # Debe entregrase el martes!!!!!!
-	# Precondicion
-	assert(True)
+def inicializarTablero() -> [[int]]: # Debe entregrarse el martes!!!!!!
 	tablero = [[0 for i in range(0,8)] for i in range(0,8)]
+	# Precondicion
+	assert(all(all(tablero[i][j] == 0 for i in range(0,8)) for j in range(0,8)))
 	tablero[3][3],tablero[4][4] = 1, 1
 	tablero[3][4],tablero[4][3] = 2, 2
 	# Post condicion
@@ -53,7 +53,7 @@ def inicializarTablero() -> [[int]]: # Debe entregrase el martes!!!!!!
 	# \\\\\\\\\\\\\\\\\\
 	return tablero
 
-def esValida(tablero, fila, columna, turno) -> bool: 
+def esValida(tablero:[[int]], fila:int, columna:int, turno:int) -> bool: 
 	# Casilla no esta ocupada por una ficha
 	if tablero[fila][columna] == 0:
 		casillaValida = True
@@ -93,19 +93,21 @@ def esValida(tablero, fila, columna, turno) -> bool:
 	return esvalida
 
 
-def obtenerJugada() -> [int]:  # Debe entregrase el martes!!!!!!
-	assert(True)
+def obtenerJugada() -> [int]:  # Debe entregrarse el martes!!!!!!
 	while True:
 		# ////////////////
 		fila = int(input("¿En qué fila desea jugar (" + str(turno+1) + ")?")) 
 		columna = int(input("¿En qué columna desea jugar (" + str(turno+1) + ")?"))
-		# \\\\\\\\\\\\\\\\\\
-		jugada = [fila, columna]
-		try: # ¿Como afecta esto a la demostracion?
+		# \\\\\\\\\\\\\\\\\\		
+		try: 
+			# Precondicion
 			assert(0 <= fila < 8 and 0 <= columna < 8)
 			break
 		except:
 			print("Ingrese una coordenada válida")
+	jugada = [fila, columna]
+	# Post condicion
+	assert(0 <= jugada[0] < 8 and 0 <= jugada[1] < 8)
 	return jugada
 
 def otraPartida() -> bool:
@@ -145,6 +147,3 @@ while True:
 		turno = cambiarJugador(turno)
 	elif not esValida(tablero,jugada[0], jugada[1], turno):
 		print("Jugada invalida, prueba otra vez\n")
-
-
-	
