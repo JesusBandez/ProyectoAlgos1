@@ -13,16 +13,14 @@ def cambiarJugador(turno:int) -> int:
 def consumo(tablero:[[int]], fila:int, columna:int, turno:int) -> [[int]]:
 	consumidas = []
 	for i in [[-1,0], [1,0], [0,1], [0,-1], [-1,-1], [-1,1], [1,1], [1,-1]]:
-		j, posibles_consumidas, vecino, fin_de_linea = 1, [], True, False
-		while j < 8 and vecino and not fin_de_linea:		 
-			if j == 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] != 2 - turno:
-				vecino = False
-			elif j >= 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 2 - turno:
+		j, posibles_consumidas, fin_de_linea = 1, [], False
+		while j < 8 and not fin_de_linea:			
+			if 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 2 - turno:
 				posibles_consumidas.append([fila + j*i[0],columna + j*i[1]])			
-			elif j > 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == turno + 1:
+			elif  0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == turno + 1:
 				consumidas = consumidas + posibles_consumidas				
 				fin_de_linea = True
-			elif j > 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 0:
+			elif  0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 0:
 				fin_de_linea = True
 			j = j+1	
 	for i in consumidas:
@@ -72,12 +70,7 @@ def inicializarTablero() -> [[int]]:
 				ventana.blit(fichaNegra,(205 + 50*j, 56 + 50*i))
 			j = j+1
 		i = i+1
-	ventana.blit(fichaBlancaContador, (50, 460))
-	ventana.blit(fichaNegraContador, (650, 460))
-	mensajeFichasB = fuente.render("2", 0, (100,100,100))
-	mensajeFichasN = fuente.render("2", 0, (125,125,125))
-	ventana.blit(mensajeFichasB, (85, 495))
-	ventana.blit(mensajeFichasN, (685,495))
+	resultadoParcial(tablero)
 	pygame.display.flip()
 	# Post condicion
 	assert(all(all(tablero[i][j] == 0 for i in range(0,8) if i != 3 and i != 4) for j in range(0,8)))	
@@ -177,7 +170,7 @@ def quedanFichas(tablero:[[int]]) -> bool:
 		j = 0
 		while j < 8 and not quedan:
 			if tablero[i][j] == 0:
-				quedan = False
+				quedan = True
 			j = j + 1
 		i = i + 1
 	return quedan
@@ -203,6 +196,7 @@ def resultadoParcial(tablero:[[int]]) -> "void":
 	mensajeFichasN = fuente.render(textoFichasN, 0, (125,125,125))
 	ventana.blit(mensajeFichasB, (85, 495))
 	ventana.blit(mensajeFichasN, (685,495))
+	pygame.display.flip()
 
 # "Aproximacion de como deber ser el programa"
 """
@@ -239,14 +233,37 @@ fichaNegraContador = pygame.transform.scale(fichaNegra, (90,90))
 turno = 1
 tablero = inicializarTablero()
 while True:
-	for event in pygame.event.get():
-		if event.type == QUIT:
-			exit()
-	jugada = obtenerJugada(turno)	
-	if esValida(tablero, jugada[0], jugada[1], turno):
-		tablero = consumo(tablero, jugada[0], jugada[1], turno)
-		dibujarJugada(tablero, jugada[0], jugada[1], turno)
-		turno = cambiarJugador(turno)
-	elif not esValida(tablero,jugada[0], jugada[1], turno):
-		error(turno)
-	resultadoParcial(tablero)
+	while quedanFichas(tablero):
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				exit()
+		jugada = obtenerJugada(turno)	
+		if esValida(tablero, jugada[0], jugada[1], turno):
+			tablero = consumo(tablero, jugada[0], jugada[1], turno)
+			dibujarJugada(tablero, jugada[0], jugada[1], turno)
+			turno = cambiarJugador(turno)
+		elif not esValida(tablero,jugada[0], jugada[1], turno):
+			error(turno)
+		resultadoParcial(tablero)
+
+	print("Mensaje de Victoria")
+
+
+""" Cosas por hacer:
+Logica:
+- Decidir a quien le toca qué color de ficha de forma aleatoria
+- Comprobar si ambos jugadores pueden jugar
+Si el jugador en turno no puede jugar, salta su turno
+Si ninguno de los dos puede jugar, se acaba el juego
+- Comprobar que los jugadores quieran jugar una nueva partida
+Inerfaz:
+- Agregar entrada de jugadas por interfaz
+- Agregar entrada de nombres por interfaz
+- Agregar mensajes:
+Cual es el jugador en turno
+Al jugar fuera del tablero
+Al saltar el turno de un jugador
+Al acabar el juego por no poder jugar
+Mensaje de Victoria
+Al pedir una nueva partida
+"""
