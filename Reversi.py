@@ -30,7 +30,6 @@ def consumo(tablero:[[int]], fila:int, columna:int, turno:int) -> [[int]]:
 	debe separarse en otros tres subprogramas (consumoVertical,consumoHorizontal y consumoDiagonal) sin embargo, la idea de esto es tener adelantado
 	parte de la lógica """
 
-
 def dibujarJugada(tablero:[[int]], fila:int, columna:int, turno:int) -> "void":
 	# Precondicion
 	assert(0 <= fila < 8 and 0 <= columna < 8 and 0 <= turno < 2)
@@ -115,7 +114,6 @@ def esValida(tablero:[[int]], fila:int, columna:int, turno:int) -> bool:
 
 	return esvalida
 
-
 def obtenerJugada(turno:int) -> [int]: 
 	if turno == 0: # Mensaje de quien le toca jugar
 		texto = "Ingrese jugada " + str(nombreJugador1) 
@@ -125,14 +123,13 @@ def obtenerJugada(turno:int) -> [int]:
 	ventana.blit(tablon, (180,460))
 	ventana.blit(mensaje, (180,460))
 	pygame.display.flip()
-
 	coordenadas = ["a", "b", "c", "d", "e", "f", "g", "h"]
 	while True:		
 		fila = int(input("¿En qué fila desea jugar?")) 
 		columna = input("¿En qué columna desea jugar?").lower()			
 		try: 
 			# Precondicion
-			assert(0 <= fila < 8 and columna in coordenadas)
+			assert(0 <= fila < 9 and columna in coordenadas)
 			break
 		except:
 			print("Ingrese una coordenada válida")
@@ -143,7 +140,6 @@ def obtenerJugada(turno:int) -> [int]:
 		else:
 			pass
 		i = i + 1
-
 	jugada = [fila-1, columna]
 	# Post condicion
 	assert(0 <= jugada[0] < 8 and 0 <= jugada[1] < 8)
@@ -198,6 +194,29 @@ def resultadoParcial(tablero:[[int]]) -> "void":
 	ventana.blit(mensajeFichasN, (685,495))
 	pygame.display.flip()
 
+def puedeJugar(tablero:[[int]], turno:int) -> bool:
+	fila, puede = 0, False 
+	while fila < 8 and not puede:
+		columna = 0
+		while columna < 8 and not puede:
+			if tablero[fila][columna] == turno+1:
+				for i in [[-1,0], [1,0], [0,1], [0,-1], [-1,-1], [-1,1], [1,1], [1,-1]]:
+					k, vecino, fin_de_linea = 1, True, False
+					while k < 8 and vecino and not puede and not fin_de_linea:
+						if k == 1 and 0 <= fila + k*i[0] < 8 and 0 <= columna + k*i[1] < 8 and tablero[fila + k*i[0]][columna + k*i[1]] != 2 - turno:
+							vecino = False							
+						elif k == 1 and 0 <= fila + k*i[0] < 8 and 0 <= columna + k*i[1] < 8 and tablero[fila + k*i[0]][columna + k*i[1]] == 2 - turno:
+							pass
+						elif k > 1 and 0 <= fila + k*i[0] < 8 and 0 <= columna + k*i[1] < 8 and tablero[fila + k*i[0]][columna + k*i[1]] == 0:
+							puede = True
+						elif k > 1 and 0 <= fila + k*i[0] < 8 and 0 <= columna + k*i[1] < 8 and tablero[fila + k*i[0]][columna + k*i[1]] == turno+1:
+							fin_de_linea = True							
+						k = k+1
+
+			columna = columna + 1
+		fila = fila + 1	
+	return puede
+
 # "Aproximacion de como deber ser el programa"
 """
 turno = 0
@@ -230,31 +249,40 @@ tablon = pygame.image.load("Tablon.png")
 fichaBlancaContador = pygame.transform.scale(fichaBlanca, (90,90))
 fichaNegraContador = pygame.transform.scale(fichaNegra, (90,90))
 
-turno = 1
-tablero = inicializarTablero()
+jugar_otra = "si"
 while True:
-	while quedanFichas(tablero):
-		for event in pygame.event.get():
-			if event.type == QUIT:
-				exit()
-		jugada = obtenerJugada(turno)	
-		if esValida(tablero, jugada[0], jugada[1], turno):
-			tablero = consumo(tablero, jugada[0], jugada[1], turno)
-			dibujarJugada(tablero, jugada[0], jugada[1], turno)
-			turno = cambiarJugador(turno)
-		elif not esValida(tablero,jugada[0], jugada[1], turno):
-			error(turno)
-		resultadoParcial(tablero)
-
-	print("Mensaje de Victoria")
-
+	while jugar_otra != "no":
+		turno = 1
+		tablero = inicializarTablero()
+		cambios_de_turno = 0
+		while quedanFichas(tablero) and cambios_de_turno != 2:
+			for event in pygame.event.get():
+				if event.type == QUIT:
+					exit()
+			cambios_de_turno = 0
+			while not puedeJugar(tablero, turno) and cambios_de_turno != 2:
+				turno = cambiarJugador(turno)
+				cambios_de_turno = cambios_de_turno + 1
+				print("No puede jugar, se cambio el turno")	
+			if cambios_de_turno == 2:
+				print("Ninguno de los jugadores puede jugar")
+				break
+			jugada = obtenerJugada(turno)	
+			if esValida(tablero, jugada[0], jugada[1], turno):
+				tablero = consumo(tablero, jugada[0], jugada[1], turno)
+				dibujarJugada(tablero, jugada[0], jugada[1], turno)
+				turno = cambiarJugador(turno)
+			elif not esValida(tablero,jugada[0], jugada[1], turno):
+				error(turno)
+			resultadoParcial(tablero)
+		print("Mensaje de Victoria")
+		jugar_otra = input("¿Quieren jugar otra?").lower()
+	print("bye")
+	break
 
 """ Cosas por hacer:
 Logica:
 - Decidir a quien le toca qué color de ficha de forma aleatoria
-- Comprobar si ambos jugadores pueden jugar
-Si el jugador en turno no puede jugar, salta su turno
-Si ninguno de los dos puede jugar, se acaba el juego
 - Comprobar que los jugadores quieran jugar una nueva partida
 Inerfaz:
 - Agregar entrada de jugadas por interfaz
