@@ -2,13 +2,18 @@ import pygame
 from pygame.locals import *
 from sys import exit
 from time import sleep
+from random import randint
 
-def cambiarJugador(turno:int) -> int:
+def cambiarJugador(turno:int, jugador_de_turno:int,) -> int:
 	if turno == 0:
 		turno = 1
 	elif turno ==1:
 		turno = 0
-	return turno
+	if jugador_de_turno == 0:
+		jugador_de_turno = 1
+	elif jugador_de_turno == 1:
+		jugador_de_turno = 0
+	return turno, jugador_de_turno
 
 def consumo(tablero:[[int]], fila:int, columna:int, turno:int) -> [[int]]:
 	consumidas = []
@@ -50,7 +55,7 @@ def dibujarJugada(tablero:[[int]], fila:int, columna:int, turno:int) -> "void":
 	# Post condicion
 	assert(tablero[fila][columna] == turno+1)
 	
-def inicializarTablero() -> [[int]]: 
+def inicializarTablero(jugador_de_turno:int) -> [[int]]: 
 	tablero = [[0 for i in range(0,8)] for i in range(0,8)]
 	# Precondicion
 	assert(all(all(tablero[i][j] == 0 for i in range(0,8)) for j in range(0,8)))
@@ -70,6 +75,22 @@ def inicializarTablero() -> [[int]]:
 			j = j+1
 		i = i+1
 	resultadoParcial(tablero)
+	if jugador_de_turno == 0:
+		texto = nombreJugador1
+		mensaje = fuente.render(texto, 0, (0,0,0))
+		ventana.blit(mensaje, (640,425))
+		texto = nombreJugador2
+		mensaje = fuente.render(texto, 0, (0,0,0))
+		ventana.blit(mensaje, (40, 425))
+	elif jugador_de_turno == 1:
+		texto = nombreJugador2
+		mensaje = fuente.render(texto, 0, (0,0,0))
+		ventana.blit(mensaje, (650,425))
+		texto = nombreJugador1
+		mensaje = fuente.render(texto, 0, (0,0,0))
+		ventana.blit(mensaje, (50, 425))
+
+
 	pygame.display.flip()
 	# Post condicion
 	assert(all(all(tablero[i][j] == 0 for i in range(0,8) if i != 3 and i != 4) for j in range(0,8)))	
@@ -114,33 +135,34 @@ def esValida(tablero:[[int]], fila:int, columna:int, turno:int) -> bool:
 
 	return esvalida
 
-def obtenerJugada(turno:int) -> [int]: 
-	if turno == 0: # Mensaje de quien le toca jugar
-		texto = "Ingrese jugada " + str(nombreJugador1) 
-	elif turno == 1:
+def obtenerJugada(jugador_de_turno:int) -> [int]: 
+	if jugador_de_turno == 0: # Mensaje de quien le toca jugar
+		texto = "Ingrese jugada " + str(nombreJugador1)
+	elif jugador_de_turno == 1:
 		texto = "Ingrese jugada " + str(nombreJugador2)
-	mensaje = fuente.render(texto, 0, (50,50,50))
+	mensaje = fuente.render(texto, 0, (0,0,0))
 	ventana.blit(tablon, (180,460))
 	ventana.blit(mensaje, (180,460))
 	pygame.display.flip()
-	coordenadas = ["a", "b", "c", "d", "e", "f", "g", "h"]
-	while True:		
-		fila = int(input("¿En qué fila desea jugar?")) 
-		columna = input("¿En qué columna desea jugar?").lower()			
-		try: 
-			# Precondicion
-			assert(0 <= fila < 9 and columna in coordenadas)
-			break
-		except:
-			print("Ingrese una coordenada válida")
+	coordenadas = (0,0)
+	while coordenadas == (0,0):
+		for event in pygame.event.get():
+			if event.type == pygame.MOUSEBUTTONUP:				
+				coordenadas = pygame.mouse.get_pos()
+				if 205 <= coordenadas[0] <= 605 and 56 <= coordenadas[1] <= 456:
+					pass
+				else:
+					coordenadas = (0,0)					
 	i = 0
 	while i < 8:
-		if columna == coordenadas[i]:
-			columna = i
-		else:
-			pass
-		i = i + 1
-	jugada = [fila-1, columna]
+		j = 0
+		while j < 8:
+			if 205 + 50*j <= coordenadas[0] <= 205 + 50*(j+1) and 56 + 50*i <= coordenadas[1] <= 56 + 50*(i+1):
+				jugada = [i,j]
+			else:
+				pass
+			j = j+1
+		i = i+1
 	# Post condicion
 	assert(0 <= jugada[0] < 8 and 0 <= jugada[1] < 8)
 	return jugada
@@ -249,29 +271,31 @@ tablon = pygame.image.load("Tablon.png")
 fichaBlancaContador = pygame.transform.scale(fichaBlanca, (90,90))
 fichaNegraContador = pygame.transform.scale(fichaNegra, (90,90))
 
+# Juego
 jugar_otra = "si"
 while True:
 	while jugar_otra != "no":
 		turno = 1
-		tablero = inicializarTablero()
 		cambios_de_turno = 0
+		jugador_en_turno = randint(0,1)
+		tablero = inicializarTablero(jugador_en_turno)
 		while quedanFichas(tablero) and cambios_de_turno != 2:
 			for event in pygame.event.get():
 				if event.type == QUIT:
 					exit()
 			cambios_de_turno = 0
 			while not puedeJugar(tablero, turno) and cambios_de_turno != 2:
-				turno = cambiarJugador(turno)
+				turno, jugador_en_turno = cambiarJugador(turno, jugador_en_turno)
 				cambios_de_turno = cambios_de_turno + 1
 				print("No puede jugar, se cambio el turno")	
 			if cambios_de_turno == 2:
 				print("Ninguno de los jugadores puede jugar")
 				break
-			jugada = obtenerJugada(turno)	
+			jugada = obtenerJugada(jugador_en_turno)	
 			if esValida(tablero, jugada[0], jugada[1], turno):
 				tablero = consumo(tablero, jugada[0], jugada[1], turno)
 				dibujarJugada(tablero, jugada[0], jugada[1], turno)
-				turno = cambiarJugador(turno)
+				turno, jugador_en_turno = cambiarJugador(turno, jugador_en_turno)
 			elif not esValida(tablero,jugada[0], jugada[1], turno):
 				error(turno)
 			resultadoParcial(tablero)
