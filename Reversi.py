@@ -4,7 +4,8 @@ from sys import exit
 from time import sleep
 from random import randint
 
-def cambiarJugador(turno:int, jugador_de_turno:int,) -> int:
+# Funciones lógicas
+def cambiarJugador(turno:int, jugador_de_turno:int,) -> int: # Cambia el turno y al jugador en turno 
 	if turno == 0:
 		turno = 1
 	elif turno ==1:
@@ -13,9 +14,9 @@ def cambiarJugador(turno:int, jugador_de_turno:int,) -> int:
 		jugador_de_turno = 1
 	elif jugador_de_turno == 1:
 		jugador_de_turno = 0
-	return turno, jugador_de_turno
+	return turno, jugador_de_turno 
 
-def consumo(tablero:[[int]], fila:int, columna:int, turno:int) -> [[int]]:
+def consumo(tablero:[[int]], fila:int, columna:int, turno:int) -> [[int]]: # Cambia las fichas de color al ser flanqueadas 
 	consumidas = []
 	for i in [[-1,0], [1,0], [0,1], [0,-1], [-1,-1], [-1,1], [1,1], [1,-1]]:
 		j, posibles_consumidas, fin_de_linea = 1, [], False
@@ -33,70 +34,30 @@ def consumo(tablero:[[int]], fila:int, columna:int, turno:int) -> [[int]]:
 	return tablero
 	""" Teniendo en cuenta que hay que demostrar esta funcion, tal vez habrá que cambiarla. Ademas, se tiene que este subprograma
 	debe separarse en otros tres subprogramas (consumoVertical,consumoHorizontal y consumoDiagonal) sin embargo, la idea de esto es tener adelantado
-	parte de la lógica """
+	parte de la lógica """ 
 
-def dibujarJugada(tablero:[[int]], fila:int, columna:int, turno:int) -> "void":
+def dibujarJugada(tablero:[[int]], fila:int, columna:int, turno:int) -> "void": # Dibuja la última jugada válida 
 	# Precondicion
 	assert(0 <= fila < 8 and 0 <= columna < 8 and 0 <= turno < 2)
 	tablero[fila][columna] = turno+1
-	i = 0
-	while i < 8:
-		j = 0
-		while j < 8:
-			if tablero[i][j] == 0:
-				pass
-			elif tablero[i][j] == 1:
-				ventana.blit(fichaBlanca,(205 + 50*j, 56 + 50*i))
-			elif tablero[i][j] == 2:
-				ventana.blit(fichaNegra,(205 + 50*j, 56 + 50*i))
-			j = j+1
-		i = i+1
-	pygame.display.flip()
+	dibujarFichas(tablero)
 	# Post condicion
-	assert(tablero[fila][columna] == turno+1)
+	assert(tablero[fila][columna] == turno+1)  
 	
-def inicializarTablero(jugador_de_turno:int) -> [[int]]: 
+def inicializarTablero() -> [[int]]: # Prepara la matriz 
 	tablero = [[0 for i in range(0,8)] for i in range(0,8)]
 	# Precondicion
 	assert(all(all(tablero[i][j] == 0 for i in range(0,8)) for j in range(0,8)))
 	tablero[3][3],tablero[4][4] = 1, 1
 	tablero[3][4],tablero[4][3] = 2, 2
 	ventana.blit(fondo, (0,0))
-	i = 0
-	while i < 8:
-		j = 0
-		while j < 8:
-			if tablero[i][j] == 0:
-				pass
-			elif tablero[i][j] == 1:
-				ventana.blit(fichaBlanca,(205 + 50*j, 56 + 50*i))
-			elif tablero[i][j] == 2:
-				ventana.blit(fichaNegra,(205 + 50*j, 56 + 50*i))
-			j = j+1
-		i = i+1
+	dibujarFichas(tablero)
 	resultadoParcial(tablero)
-	if jugador_de_turno == 0:
-		texto = nombreJugador1
-		mensaje = fuente.render(texto, 0, (0,0,0))
-		ventana.blit(mensaje, (640,425))
-		texto = nombreJugador2
-		mensaje = fuente.render(texto, 0, (0,0,0))
-		ventana.blit(mensaje, (40, 425))
-	elif jugador_de_turno == 1:
-		texto = nombreJugador2
-		mensaje = fuente.render(texto, 0, (0,0,0))
-		ventana.blit(mensaje, (650,425))
-		texto = nombreJugador1
-		mensaje = fuente.render(texto, 0, (0,0,0))
-		ventana.blit(mensaje, (50, 425))
-
-
-	pygame.display.flip()
 	# Post condicion
 	assert(all(all(tablero[i][j] == 0 for i in range(0,8) if i != 3 and i != 4) for j in range(0,8)))	
 	return tablero
 
-def esValida(tablero:[[int]], fila:int, columna:int, turno:int) -> bool: 
+def esValida(tablero:[[int]], fila:int, columna:int, turno:int) -> bool: # Indica si una jugada es válida 
 	# Casilla no esta ocupada por una ficha
 	if tablero[fila][columna] == 0:
 		casillaValida = True
@@ -135,19 +96,13 @@ def esValida(tablero:[[int]], fila:int, columna:int, turno:int) -> bool:
 
 	return esvalida
 
-def obtenerJugada(jugador_de_turno:int) -> [int]: 
-	if jugador_de_turno == 0: # Mensaje de quien le toca jugar
-		texto = "Ingrese jugada " + str(nombreJugador1)
-	elif jugador_de_turno == 1:
-		texto = "Ingrese jugada " + str(nombreJugador2)
-	mensaje = fuente.render(texto, 0, (0,0,0))
-	ventana.blit(tablon, (180,460))
-	ventana.blit(mensaje, (180,460))
-	pygame.display.flip()
+def obtenerJugada() -> [int]: # Recibe las coordenadas del mouse y las transforma en subíndices de la matriz 
 	coordenadas = (0,0)
 	while coordenadas == (0,0):
 		for event in pygame.event.get():
-			if event.type == pygame.MOUSEBUTTONUP:				
+			if event.type == QUIT:
+				exit()
+			elif event.type == pygame.MOUSEBUTTONUP:				
 				coordenadas = pygame.mouse.get_pos()
 				if 205 <= coordenadas[0] <= 605 and 56 <= coordenadas[1] <= 456:
 					pass
@@ -165,24 +120,16 @@ def obtenerJugada(jugador_de_turno:int) -> [int]:
 		i = i+1
 	# Post condicion
 	assert(0 <= jugada[0] < 8 and 0 <= jugada[1] < 8)
-	return jugada
+	return jugada 
 
-def otraPartida() -> bool:
+def otraPartida() -> bool: # Pregunta si se quiere jugar otra partida
 	print("¿Quieren jugar otra partida?:")
 	respuesta = ""
 	while respuesta != "si" and respuesta != "no":
 		respuesta = input()
-	return respuesta
+	return respuesta 
 
-def error(turno:int) -> "void":
-	texto = "Jugada inválida"
-	mensaje = fuente.render(texto, 0, (50,50,50))
-	ventana.blit(tablon, (180,460))
-	ventana.blit(mensaje, (180,460))
-	pygame.display.flip()
-	sleep(1.1)
-
-def quedanFichas(tablero:[[int]]) -> bool:
+def quedanFichas(tablero:[[int]]) -> bool: # Indica si aún quedan espacios vacíos en el tablero
 	i, quedan = 0, False
 	while i < 8 and not quedan:
 		j = 0
@@ -191,32 +138,9 @@ def quedanFichas(tablero:[[int]]) -> bool:
 				quedan = True
 			j = j + 1
 		i = i + 1
-	return quedan
+	return quedan 
 
-def resultadoParcial(tablero:[[int]]) -> "void":
-	i , fichasB, fichasN = 0, 0, 0
-	while i < 8:
-		j = 0
-		while j < 8:
-			if tablero[i][j] == 0:
-				pass
-			elif tablero[i][j] == 1:
-				fichasB = fichasB + 1
-			elif tablero[i][j] == 2:
-				fichasN = fichasN + 1
-			j = j+1
-		i = i+1
-	ventana.blit(fichaBlancaContador, (50, 460)) # Imprime la cantidad de fichas de cada color en el tablero
-	ventana.blit(fichaNegraContador, (650, 460))
-	textoFichasB = str(fichasB)
-	textoFichasN = str(fichasN)
-	mensajeFichasB = fuente.render(textoFichasB, 0, (100,100,100))
-	mensajeFichasN = fuente.render(textoFichasN, 0, (125,125,125))
-	ventana.blit(mensajeFichasB, (85, 495))
-	ventana.blit(mensajeFichasN, (685,495))
-	pygame.display.flip()
-
-def puedeJugar(tablero:[[int]], turno:int) -> bool:
+def puedeJugar(tablero:[[int]], turno:int) -> bool: # Evalúa si el turno puede hacer al menos una jugada válida
 	fila, puede = 0, False 
 	while fila < 8 and not puede:
 		columna = 0
@@ -237,7 +161,81 @@ def puedeJugar(tablero:[[int]], turno:int) -> bool:
 
 			columna = columna + 1
 		fila = fila + 1	
-	return puede
+	return puede 
+
+# Funciones para la interfaz
+def dibujarFichas(tablero:[[int]]) -> "void": # Dibuja las fichas sobre el tablero 
+	i = 0
+	while i < 8:
+		j = 0
+		while j < 8:
+			if tablero[i][j] == 0:
+				pass
+			elif tablero[i][j] == 1:
+				ventana.blit(fichaBlanca,(205 + 50*j, 56 + 50*i))
+			elif tablero[i][j] == 2:
+				ventana.blit(fichaNegra,(205 + 50*j, 56 + 50*i))
+			j = j+1
+		i = i+1
+	pygame.display.flip() # Dibuja las fichas en la ventana 
+
+def nombresPuntaje(jugador_de_turno:int) -> "void": # Dibuja nombres sobre las fichas
+	if jugador_de_turno == 0:
+		texto = nombreJugador1
+		mensaje = fuente.render(texto, 0, (0,0,0))
+		ventana.blit(mensaje, (640,425))
+		texto = nombreJugador2
+		mensaje = fuente.render(texto, 0, (0,0,0))
+		ventana.blit(mensaje, (40, 425))
+	elif jugador_de_turno == 1:
+		texto = nombreJugador2
+		mensaje = fuente.render(texto, 0, (0,0,0))
+		ventana.blit(mensaje, (650,425))
+		texto = nombreJugador1
+		mensaje = fuente.render(texto, 0, (0,0,0))
+		ventana.blit(mensaje, (50, 425))
+	pygame.display.flip()
+
+def quienJuega(jugador_de_turno: int) -> "void": # Mensaje de a quien le toca jugar
+	if jugador_de_turno == 0: 
+		texto = "Ingrese jugada " + str(nombreJugador1)
+	elif jugador_de_turno == 1:
+		texto = "Ingrese jugada " + str(nombreJugador2)
+	mensaje = fuente.render(texto, 0, (0,0,0))
+	ventana.blit(tablon, (180,460))
+	ventana.blit(mensaje, (180,460))
+	pygame.display.flip()
+
+def error(turno:int) -> "void": # Mensaje de jugada inválida 
+	texto = "Jugada inválida"
+	mensaje = fuente.render(texto, 0, (50,50,50))
+	ventana.blit(tablon, (180,460))
+	ventana.blit(mensaje, (180,460))
+	pygame.display.flip()
+	sleep(1.1) 
+
+def resultadoParcial(tablero:[[int]]) -> "void": # Imprime la cantidad de fichas de cada color en el tablero
+	i , fichasB, fichasN = 0, 0, 0
+	while i < 8:
+		j = 0
+		while j < 8:
+			if tablero[i][j] == 0:
+				pass
+			elif tablero[i][j] == 1:
+				fichasB = fichasB + 1
+			elif tablero[i][j] == 2:
+				fichasN = fichasN + 1
+			j = j+1
+		i = i+1
+	ventana.blit(fichaBlancaContador, (50, 460)) 
+	ventana.blit(fichaNegraContador, (650, 460))
+	textoFichasB = str(fichasB)
+	textoFichasN = str(fichasN)
+	mensajeFichasB = fuente.render(textoFichasB, 0, (100,100,100))
+	mensajeFichasN = fuente.render(textoFichasN, 0, (125,125,125))
+	ventana.blit(mensajeFichasB, (85, 495))
+	ventana.blit(mensajeFichasN, (685,495))
+	pygame.display.flip()
 
 # "Aproximacion de como deber ser el programa"
 """
@@ -278,11 +276,9 @@ while True:
 		turno = 1
 		cambios_de_turno = 0
 		jugador_en_turno = randint(0,1)
-		tablero = inicializarTablero(jugador_en_turno)
+		tablero = inicializarTablero()
+		nombresPuntaje(jugador_en_turno)
 		while quedanFichas(tablero) and cambios_de_turno != 2:
-			for event in pygame.event.get():
-				if event.type == QUIT:
-					exit()
 			cambios_de_turno = 0
 			while not puedeJugar(tablero, turno) and cambios_de_turno != 2:
 				turno, jugador_en_turno = cambiarJugador(turno, jugador_en_turno)
@@ -291,7 +287,8 @@ while True:
 			if cambios_de_turno == 2:
 				print("Ninguno de los jugadores puede jugar")
 				break
-			jugada = obtenerJugada(jugador_en_turno)	
+			quienJuega(jugador_en_turno)
+			jugada = obtenerJugada()	
 			if esValida(tablero, jugada[0], jugada[1], turno):
 				tablero = consumo(tablero, jugada[0], jugada[1], turno)
 				dibujarJugada(tablero, jugada[0], jugada[1], turno)
@@ -306,14 +303,11 @@ while True:
 
 """ Cosas por hacer:
 Logica:
-- Decidir a quien le toca qué color de ficha de forma aleatoria
 - Comprobar que los jugadores quieran jugar una nueva partida
 Inerfaz:
 - Agregar entrada de jugadas por interfaz
 - Agregar entrada de nombres por interfaz
 - Agregar mensajes:
-Cual es el jugador en turno
-Al jugar fuera del tablero
 Al saltar el turno de un jugador
 Al acabar el juego por no poder jugar
 Mensaje de Victoria
