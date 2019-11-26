@@ -182,18 +182,18 @@ def dibujarFichas(tablero:[[int]]) -> "void": # Dibuja las fichas sobre el table
 def nombresPuntaje(jugador_de_turno:int) -> "void": # Dibuja nombres sobre las fichas
 	if jugador_de_turno == 0:
 		texto = nombreJugador1
-		mensaje = fuente.render(texto, 0, (0,0,0))
-		ventana.blit(mensaje, (640,425))
+		mensaje = fuente_peq.render(texto, 1, (0,0,0))
+		ventana.blit(mensaje, (630,420))
 		texto = nombreJugador2
-		mensaje = fuente.render(texto, 0, (0,0,0))
-		ventana.blit(mensaje, (40, 425))
+		mensaje = fuente_peq.render(texto, 1, (0,0,0))
+		ventana.blit(mensaje, (30, 420))
 	elif jugador_de_turno == 1:
 		texto = nombreJugador2
-		mensaje = fuente.render(texto, 0, (0,0,0))
-		ventana.blit(mensaje, (650,425))
+		mensaje = fuente_peq.render(texto, 1, (0,0,0))
+		ventana.blit(mensaje, (630,420))
 		texto = nombreJugador1
-		mensaje = fuente.render(texto, 0, (0,0,0))
-		ventana.blit(mensaje, (50, 425))
+		mensaje = fuente_peq.render(texto, 1, (0,0,0))
+		ventana.blit(mensaje, (30, 420))
 	pygame.display.flip()
 
 def quienJuega(jugador_de_turno: int) -> "void": # Mensaje de a quien le toca jugar
@@ -201,14 +201,14 @@ def quienJuega(jugador_de_turno: int) -> "void": # Mensaje de a quien le toca ju
 		texto = "Ingrese jugada " + str(nombreJugador1)
 	elif jugador_de_turno == 1:
 		texto = "Ingrese jugada " + str(nombreJugador2)
-	mensaje = fuente.render(texto, 0, (0,0,0))
+	mensaje = fuente.render(texto, 1, (0,0,0))
 	ventana.blit(tablon, (180,460))
 	ventana.blit(mensaje, (180,460))
 	pygame.display.flip()
 
 def error(turno:int) -> "void": # Mensaje de jugada inválida 
 	texto = "Jugada inválida"
-	mensaje = fuente.render(texto, 0, (50,50,50))
+	mensaje = fuente.render(texto, 1, (0,0,0))
 	ventana.blit(tablon, (180,460))
 	ventana.blit(mensaje, (180,460))
 	pygame.display.flip()
@@ -231,11 +231,39 @@ def resultadoParcial(tablero:[[int]]) -> "void": # Imprime la cantidad de fichas
 	ventana.blit(fichaNegraContador, (650, 460))
 	textoFichasB = str(fichasB)
 	textoFichasN = str(fichasN)
-	mensajeFichasB = fuente.render(textoFichasB, 0, (100,100,100))
-	mensajeFichasN = fuente.render(textoFichasN, 0, (125,125,125))
-	ventana.blit(mensajeFichasB, (85, 495))
-	ventana.blit(mensajeFichasN, (685,495))
+	mensajeFichasB = fuente_peq.render(textoFichasB, 1, (100,100,100))
+	mensajeFichasN = fuente_peq.render(textoFichasN, 1, (125,125,125))
+	ventana.blit(mensajeFichasB, (85, 480))
+	ventana.blit(mensajeFichasN, (685,480))
 	pygame.display.flip()
+
+def escribir(caracteres:[str] ,jugador:int) -> "void": # Escribe los nombres a tiempo real cuando se piden 
+	ventana.blit(tabla, (0,0))
+	texto = "Ingrese su nombre jugador " + str(jugador) + ":"
+	mensaje = fuente.render(texto, 1, (0,0,0))
+	ventana.blit(mensaje, (150, 200))
+	pygame.display.flip()
+	mensaje = str(caracteres)
+	mensaje = fuente_peq.render(mensaje, 1, (0,0,0))
+	ventana.blit(mensaje, (200,260))
+	pygame.display.flip()
+
+def pedirNombre(jugador:int) -> str: # Permite a los jugadores escribir su nombre
+	caracteres = ""
+	asignado = ""
+	while asignado == "":
+		for event in pygame.event.get():
+			if event.type == KEYDOWN:
+				if event.key == K_BACKSPACE:
+					caracteres = caracteres[0:len(caracteres)-1]
+				elif event.key == K_RETURN:
+					asignado = caracteres				
+				elif event.key == K_SPACE or len(caracteres) > 7:
+					pass
+				else:						
+					caracteres = caracteres + event.unicode
+			escribir(caracteres, jugador)
+	return caracteres
 
 # "Aproximacion de como deber ser el programa"
 """
@@ -253,21 +281,26 @@ while otro:
 		resultado()
 	otro = otraPartida()
 """
-# Nombres de jugadores
-nombreJugador1 = input("Inserte el nombre del jugador 1: ")
-nombreJugador2 = input("Inserte el nombre del jugador 2: ")
 # Inicializacion
 pygame.init()
 ventana = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Reversi")
-fuente = pygame.font.Font(None, 40)
+
+# Fuentes
+fuente = pygame.font.Font("BOOKOS.ttf", 40)
+fuente_peq = pygame.font.Font("BOOKOS.ttf", 35)
 # Cargar y modificar imagenes
 fondo = pygame.image.load("Tablero.png").convert()
 fichaBlanca = pygame.image.load("Ficha_Blanca.png").convert_alpha()
 fichaNegra = pygame.image.load("Ficha_Negra.png").convert_alpha()
 tablon = pygame.image.load("Tablon.png")
+tabla = pygame.image.load("Tabla.jpg")
 fichaBlancaContador = pygame.transform.scale(fichaBlanca, (90,90))
 fichaNegraContador = pygame.transform.scale(fichaNegra, (90,90))
+
+# Nombres de jugadores
+nombreJugador1 = pedirNombre(1)
+nombreJugador2 = pedirNombre(2)
 
 # Juego
 jugar_otra = "si"
@@ -304,9 +337,7 @@ while True:
 """ Cosas por hacer:
 Logica:
 - Comprobar que los jugadores quieran jugar una nueva partida
-Inerfaz:
-- Agregar entrada de jugadas por interfaz
-- Agregar entrada de nombres por interfaz
+Interfaz:
 - Agregar mensajes:
 Al saltar el turno de un jugador
 Al acabar el juego por no poder jugar
