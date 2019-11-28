@@ -243,6 +243,10 @@ def escribir(caracteres:[str] ,jugador:int) -> "void": # Escribe los nombres a t
 	mensaje = str(caracteres)
 	mensaje = fuente_peq.render(mensaje, 1, (0,0,0))
 	ventana.blit(mensaje, (200,260))
+	if len(caracteres) > 0:
+		texto = "Pulse enter para continuar"
+		mensaje = fuente_peq.render(texto, 1, (0,0,0))
+		ventana.blit(mensaje, (200, 560))
 	pygame.display.flip()
 
 def pedirNombre(jugador:int) -> str: # Permite a los jugadores escribir su nombre
