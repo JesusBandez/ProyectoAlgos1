@@ -15,7 +15,7 @@ def cambiarJugador(turno:int) -> int: # Cambia el turno
 		turno = 0	
 	return turno
 
-def consumo(tablero:[[int]], fila:int, columna:int, turno:int) -> [[int]]: # Cambia las fichas de color al ser flanqueadas 
+def consumo(tablero:[[int]], fila:int, columna:int, turno:int) -> "void": # Cambia las fichas de color al ser flanqueadas 
 	consumidas = []
 	for i in [[-1,0], [1,0], [0,1], [0,-1], [-1,-1], [-1,1], [1,1], [1,-1]]:
 		j, posibles_consumidas, fin_de_linea = 1, [], False
@@ -29,8 +29,7 @@ def consumo(tablero:[[int]], fila:int, columna:int, turno:int) -> [[int]]: # Cam
 				fin_de_linea = True
 			j = j+1	
 	for i in consumidas:
-		tablero[i[0]][i[1]] = turno + 1
-	return tablero
+		tablero[i[0]][i[1]] = turno + 1	
 	
 def dibujarJugada(tablero:[[int]], fila:int, columna:int, turno:int) -> "void": # Dibuja la última jugada válida 
 	# Precondicion
@@ -203,7 +202,7 @@ def quienJuega(turno:int, orden:[str]) -> "void": # Mensaje de a quien le toca j
 	ventana.blit(mensaje, (180,460))
 	pygame.display.flip()
 
-def error(turno:int) -> "void": # Mensaje de jugada inválida 
+def error() -> "void": # Mensaje de jugada inválida 
 	texto = "Jugada inválida"
 	mensaje = fuente.render(texto, 1, (0,0,0))
 	ventana.blit(tablon, (180,460))
@@ -436,12 +435,12 @@ while jugar_otra != "no":
 		jugada = obtenerJugada()
 
 		if esValida(tablero, jugada[0], jugada[1], turno):
-			tablero = consumo(tablero, jugada[0], jugada[1], turno)
+			consumo(tablero, jugada[0], jugada[1], turno)
 			dibujarJugada(tablero, jugada[0], jugada[1], turno)
 			turno = cambiarJugador(turno)
 
 		elif not esValida(tablero,jugada[0], jugada[1], turno):
-			error(turno)
+			error()
 
 		resultadoParcial(tablero)
 
