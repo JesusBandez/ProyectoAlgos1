@@ -9,11 +9,16 @@ from random import randint
 
 # Funciones lógicas
 def cambiarJugador(turno:int) -> int: # Cambia el turno 
+	# Precondicion
+	assert(0 <= turno < 2)
 	if turno == 0:
-		turno = 1
+		cambio = 1
 	elif turno ==1:
-		turno = 0	
-	return turno
+		cambio = 0
+	# Postcondicion
+	assert((turno == 0 and cambio == 1) 
+		or (turno == 1 and cambio == 0))
+	return cambio
 
 def consumo(tablero:[[int]], fila:int, columna:int, turno:int) -> "void": # Cambia las fichas de color al ser flanqueadas 
 	consumidas = []
@@ -40,9 +45,9 @@ def dibujarJugada(tablero:[[int]], fila:int, columna:int, turno:int) -> "void": 
 	assert(tablero[fila][columna] == turno+1)  
 	
 def inicializarTablero() -> [[int]]: # Prepara la matriz 
-	tablero = [[0 for i in range(0,8)] for i in range(0,8)]
 	# Precondicion
-	assert(all(all(tablero[i][j] == 0 for i in range(0,8)) for j in range(0,8)))
+	assert(True)
+	tablero = [[0 for i in range(0,8)] for i in range(0,8)]
 	tablero[3][3],tablero[4][4] = 1, 1
 	tablero[3][4],tablero[4][3] = 2, 2
 	ventana.blit(fondo, (0,0))
@@ -65,35 +70,29 @@ def esValida(tablero:[[int]], fila:int, columna:int, turno:int) -> bool: # Indic
 		while j < 8 and not fin_de_linea and not flanqueada: 
 			if j == 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] != 2 - turno:
 				fin_de_linea = True
-			elif j == 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 2 - turno:
+			elif j >= 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 2 - turno:
 				contador = contador + 1
 			elif j > 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == turno + 1:
-				flanqueada = True
-			elif j > 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 2-turno:
-				contador = contador + 1
+				flanqueada = True			
 			elif j > 1 and 0 <= fila + j*i[0] < 8 and 0 <= columna + j*i[1] < 8 and tablero[fila + j*i[0]][columna + j*i[1]] == 0:
 				fin_de_linea = True
 			j = j + 1
 		if flanqueada:
 			cambiadas = cambiadas + contador
 		elif not flanqueada:
-			pass
-		
-	# Comprueba si hubieron fichas que cambiaron de color
-	if cambiadas == 0:
-		cambio = False
-	elif cambiadas > 0:
-		cambio = True
+			pass	
 
 	# Comprueba que la jugada sea valida
-	if cambio and casillaValida:
+	if cambiadas != 0 and casillaValida:
 		esvalida = True
-	elif not cambio or not casillaValida:
+	elif cambiadas == 0 or not casillaValida:
 		esvalida = False
 
 	return esvalida
 
 def obtenerJugada() -> [int]: # Recibe las coordenadas del mouse y las transforma en subíndices de la matriz 
+	# Precondicion
+	assert(True)
 	coordenadas = (0,0)
 	while coordenadas == (0,0):
 		for event in pygame.event.get():
@@ -110,9 +109,7 @@ def obtenerJugada() -> [int]: # Recibe las coordenadas del mouse y las transform
 		j = 0
 		while j < 8:
 			if 205 + 50*j <= coordenadas[0] <= 205 + 50*(j+1) and 56 + 50*i <= coordenadas[1] <= 56 + 50*(i+1):
-				jugada = [i,j]
-			else:
-				pass
+				jugada = [i,j]			
 			j = j+1
 		i = i+1
 	# Post condicion
@@ -120,6 +117,8 @@ def obtenerJugada() -> [int]: # Recibe las coordenadas del mouse y las transform
 	return jugada 
 
 def quedanFichas(tablero:[[int]]) -> bool: # Indica si aún quedan espacios vacíos en el tablero
+	# Precondicion
+	assert(True)
 	i, quedan = 0, False
 	while i < 8 and not quedan:
 		j = 0
@@ -128,6 +127,8 @@ def quedanFichas(tablero:[[int]]) -> bool: # Indica si aún quedan espacios vac�
 				quedan = True
 			j = j + 1
 		i = i + 1
+	# Postcondicion
+	assert(quedan == any(any(tablero[i][j]==0 for i in range(0,8)) for j in range(0,8)))
 	return quedan 
 
 def puedeJugar(tablero:[[int]], turno:int) -> bool: # Evalúa si el turno puede hacer al menos una jugada válida
@@ -258,7 +259,7 @@ def pedirNombre(jugador:int) -> str: # Permite a los jugadores escribir su nombr
 					caracteres = caracteres[0:len(caracteres)-1]
 				elif event.key == K_RETURN:
 					asignado = caracteres				
-				elif event.key == K_SPACE or len(caracteres) > 7:
+				elif event.key == K_SPACE or len(caracteres) > 6:
 					pass
 				else:						
 					caracteres = caracteres + event.unicode
