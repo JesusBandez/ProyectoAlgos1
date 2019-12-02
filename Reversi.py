@@ -327,11 +327,13 @@ def pedirNombre(jugador:int) -> str:
 				if event.key == K_BACKSPACE:
 					caracteres = caracteres[0:len(caracteres)-1]
 				elif event.key == K_RETURN:
+					caracteres = (caracteres[0] 
+						+ caracteres[1:len(caracteres)-1].lower())
 					asignado = caracteres				
 				elif event.key == K_SPACE or len(caracteres) > 6:
 					pass
 				else:						
-					caracteres = caracteres + event.unicode
+					caracteres = caracteres + event.unicode					
 			elif event.type == QUIT:
 				exit()
 			escribir(caracteres, jugador)
