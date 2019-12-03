@@ -328,7 +328,7 @@ def pedirNombre(jugador:int) -> str:
 					caracteres = caracteres[0:len(caracteres)-1]
 				elif event.key == K_RETURN:
 					caracteres = (caracteres[0] 
-						+ caracteres[1:len(caracteres)-1].lower())
+						+ caracteres[1:len(caracteres)].lower())
 					asignado = caracteres				
 				elif event.key == K_SPACE or len(caracteres) > 6:
 					pass
