@@ -4,7 +4,6 @@
 import pygame
 from pygame.locals import *
 from sys import exit
-from time import sleep
 from random import randint
 
 # Funciones lógicas
@@ -63,14 +62,19 @@ def dibujarJugada(
 def inicializarTablero() -> [[int]]:
 	"Inicializa la matriz de juego"
 
+	global boton_salir
 	# Precondicion
 	assert(True)
 	tablero = [[0 for i in range(0,8)] for i in range(0,8)]
 	tablero[3][3],tablero[4][4] = 1, 1
 	tablero[3][4],tablero[4][3] = 2, 2
 	ventana.blit(fondo, (0,0))
+	mensaje = fuente.render("Salir", 1, (0,0,0))
+	boton_salir = ventana.blit(mensaje, (700, 15))
 	dibujarFichas(tablero)
 	resultadoParcial(tablero)
+	
+	
 	# Post condicion
 	assert(all(all(tablero[i][j] == 0 for i in range(0,8) 
 		if i != 3 and i != 4) for j in range(0,8)))	
@@ -123,21 +127,45 @@ def esValida(
 def obtenerJugada() -> [int]:
 	"Traduce las coordenadas del mouse en subíndices de la matriz "
 
+	global boton_salir #  ARREGLAR ESTE BOTON QUE SE REMARCA
 	# Precondicion
 	assert(True)
+
 	coordenadas = (0,0)
 	while coordenadas == (0,0):
+		ventana.blit(fondo, (0,0))
+		dibujarFichas(tablero)
+		resultadoParcial(tablero)
+		quienJuega(turno, orden)
+	
+		if boton_salir.collidepoint(pygame.mouse.get_pos()):
+			mensaje = fuente.render("Salir", 1, (220,220,220))
+		else:
+			mensaje = fuente.render("Salir", 1, (0,0,0))
+		boton_salir = ventana.blit(mensaje, (700, 15))
+		
+
+
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				exit()
+				confirmar_salida()			
+			
 			elif event.type == pygame.MOUSEBUTTONUP:				
 				coordenadas = pygame.mouse.get_pos()
 				if (205 <= coordenadas[0] <= 605 
 						and 56 <= coordenadas[1] <= 456):
 					pass
+
+				elif boton_salir.collidepoint(pygame.mouse.get_pos()):
+					confirmar_salida()
+					coordenadas = (0,0)	
 				else:
 					# El mouse debe estar en el tablero
-					coordenadas = (0,0)					
+					coordenadas = (0,0)
+		
+		clock.tick(30)
+
+		pygame.display.flip()				
 	i = 0
 	while i < 8:
 		j = 0
@@ -222,7 +250,7 @@ def dibujarFichas(tablero:[[int]]) -> "void":
 				ventana.blit(fichaNegra,(205 + 50*j, 56 + 50*i))
 			j = j+1
 		i = i+1
-	pygame.display.flip()
+	
 
 def nombresPuntaje(
 	jugador_de_turno:int, nombreJugador1:str, 
@@ -262,7 +290,7 @@ def quienJuega(turno:int, orden:[str]) -> "void":
 	mensaje = fuente.render(texto, 1, (0,0,0))
 	ventana.blit(tablon, (180,460))
 	ventana.blit(mensaje, (180,460))
-	pygame.display.flip()
+	
 
 def error() -> "void":
 	"Mensaje de jugada inválida" 
@@ -272,7 +300,7 @@ def error() -> "void":
 	ventana.blit(tablon, (180,460))
 	ventana.blit(mensaje, (180,460))
 	pygame.display.flip()
-	sleep(0.8) 
+	pygame.time.wait(800)
 
 def resultadoParcial(tablero:[[int]]) -> "void":
 	"Imprime la cantidad de fichas de cada color en el tablero"
@@ -297,7 +325,6 @@ def resultadoParcial(tablero:[[int]]) -> "void":
 	mensajeFichasN = fuente_peq.render(textoFichasN, 1, (215,215,215))
 	ventana.blit(mensajeFichasB, (82, 480))
 	ventana.blit(mensajeFichasN, (682,480))
-	pygame.display.flip()
 
 def escribir(caracteres:[str] ,jugador:int) -> "void":
 	"Escribe los nombres en pantalla a tiempo real cuando se piden "
@@ -335,43 +362,66 @@ def pedirNombre(jugador:int) -> str:
 				else:						
 					caracteres = caracteres + event.unicode					
 			elif event.type == QUIT:
-				exit()
+				confirmar_salida()
 			escribir(caracteres, jugador)
 	return caracteres
 
 def jugarOtra() -> str:
 	"Dice si los jugadores quieren jugar otra partida"
 
-	mensajeJugarOtra()
-	coordenadas = (0,0)
-	while coordenadas == (0,0):
-		for event in pygame.event.get():
-			if event.type == QUIT:
-				exit()
-			elif event.type == pygame.MOUSEBUTTONUP:				
-				coordenadas = pygame.mouse.get_pos()
-				if 250 <= coordenadas[0] <= 285 and 300 <= coordenadas[1] <= 340:
-					jugar_otra = "sí"
-				elif 450 <= coordenadas[0] <= 500 and 300 <= coordenadas[1] <= 340:
-					jugar_otra = "no"
-				else:
-					coordenadas = (0,0)
-	return jugar_otra									 
-
-def mensajeJugarOtra() -> "void":
-	"Pregunta en la interfaz si se quiere jugar otra vez"
-
 	ventana.blit(tabla, (0,0))
 	texto = "¿Quieren jugar otra partida?"
 	mensaje = fuente.render(texto, 1, (0,0,0))
 	ventana.blit(mensaje, (150,200))
-	texto = "Sí"
-	mensaje = fuente.render(texto, 1, (0,0,0))
-	ventana.blit(mensaje, (250,300))
-	texto = "No"
-	mensaje = fuente.render(texto, 1, (0,0,0))
-	ventana.blit(mensaje, (450,300))
+
+	mensaje = fuente.render("Sí", 1, (0,0,0))
+	opcion_Si = ventana.blit(mensaje, (250,300))
+
+	mensaje = fuente.render("No", 1, (0,0,0))
+	opcion_No = ventana.blit(mensaje, (450,300))
+
 	pygame.display.flip()
+	
+	jugar_otra = ""
+	while jugar_otra == "":
+		ventana.blit(tabla, (0,0))
+		texto = "¿Quieren jugar otra partida?"
+		mensaje = fuente.render(texto, 1, (0,0,0))
+		ventana.blit(mensaje, (150,200))
+
+		if opcion_Si.collidepoint(pygame.mouse.get_pos()):		
+			mensaje = fuente.render("Sí", 1, (220,220,220))
+		
+		else:
+			mensaje = fuente.render("Sí", 1, (0,0,0))
+
+		opcion_Si = ventana.blit(mensaje, (250,300))
+
+
+		if opcion_No.collidepoint(pygame.mouse.get_pos()):
+			mensaje = fuente.render("No", 1, (220,220,220))
+		else:
+			mensaje = fuente.render("No", 1, (0,0,0))
+
+		opcion_No = ventana.blit(mensaje, (450,300))
+
+
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				confirmar_salida()
+
+			elif event.type == pygame.MOUSEBUTTONUP:				
+				
+				if opcion_Si.collidepoint(pygame.mouse.get_pos()):
+					jugar_otra = "sí"	
+
+				elif opcion_No.collidepoint(pygame.mouse.get_pos()):
+					jugar_otra = "no"
+
+		pygame.display.flip()
+
+	return jugar_otra									 
+
 
 def mensajeVictoria(tablero:[[int]], orden:[int]) -> "void":
 	"Muestra un mensaje de quien ha ganado la partida"
@@ -387,7 +437,7 @@ def mensajeVictoria(tablero:[[int]], orden:[int]) -> "void":
 			j = j + 1
 		i = i + 1
 
-	sleep(0.8)
+	pygame.time.wait(800)
 	ventana.blit(tablon, (180,460))
 	if negras > blancas:
 		texto = "¡Has ganado " + str(orden[0]) + "!"
@@ -402,11 +452,11 @@ def mensajeVictoria(tablero:[[int]], orden:[int]) -> "void":
 		mensaje = fuente.render(texto, 1, (0,0,0))
 		ventana.blit(mensaje, (180, 460))
 	pygame.display.flip()
-	sleep(2.8) 
+	pygame.time.wait(2800)
 
 def mensajeSaltoDeTurno(orden:[str], turno:int) -> "void":
 	"Muestra un mensaje de a quien se la ha saltado el turno"
-	sleep(0.4)
+	pygame.time.wait(400)
 	ventana.blit(tablon, (180,460))
 	if turno == 0:
 		texto = orden[1] + " no puede jugar"
@@ -423,7 +473,7 @@ def mensajeSaltoDeTurno(orden:[str], turno:int) -> "void":
 		mensaje = fuente.render(texto, 1, (0,0,0))
 		ventana.blit(mensaje, (180, 500))
 	pygame.display.flip()
-	sleep(1.5)
+	pygame.time.wait(1500)
 
 def mensajeDosSaltosDeTurno() -> "void":
 	"Advierte que se acabará la partida porque nadie pude jugar"
@@ -436,7 +486,7 @@ def mensajeDosSaltosDeTurno() -> "void":
 	mensaje = fuente.render(texto, 1, (0,0,0))
 	ventana.blit(mensaje, (180, 500))
 	pygame.display.flip()
-	sleep(1.5)
+	pygame.time.wait(1500)
 
 def despedida() -> "void":
 	"Mensaje de despedida"
@@ -452,7 +502,7 @@ def despedida() -> "void":
 	mensaje = fuente_despedida.render(texto, 1, (0,0,0))
 	ventana.blit(mensaje, (180, 345))
 	pygame.display.flip()
-	sleep(3)
+	pygame.time.wait(3000)
 
 def bienvenida() -> "void":
 	"Mensaje de bienvenida"
@@ -471,12 +521,65 @@ def bienvenida() -> "void":
 			if event.type == MOUSEBUTTONUP:
 				texto = "a"
 			elif event.type == QUIT:
+				confirmar_salida()
+
+def confirmar_salida():
+	copia_ventana = ventana.copy()
+	ventana.blit(tabla, (0,0))
+	mensaje = fuente.render("¿Seguro de querer salir?", 1, (0, 0, 0))
+	ventana.blit(mensaje, (180, 250))
+	mensaje = fuente.render("Sí", 1, (0,0,0))
+	opcion_Si = ventana.blit(mensaje, (250,300))
+	mensaje = fuente.render("No", 1, (190,190,190))
+	opcion_No = ventana.blit(mensaje, (450,300))
+
+	pygame.display.flip()
+	
+	while True:
+		ventana.blit(tabla, (0,0))
+		mensaje = fuente.render("¿Seguro de querer salir?", 1, (0, 0, 0))
+		ventana.blit(mensaje, (180, 250))
+
+		if opcion_Si.collidepoint(pygame.mouse.get_pos()):
+			mensaje = fuente.render("Sí", 1, (220,220,220))
+			
+		
+		else:
+			mensaje = fuente.render("Sí", 1, (0,0,0))
+
+		opcion_Si = ventana.blit(mensaje, (250,300))
+
+		if opcion_No.collidepoint(pygame.mouse.get_pos()):
+			mensaje = fuente.render("No", 1, (220,220,220))
+			
+		else:
+			mensaje = fuente.render("No", 1, (0,0,0))
+		opcion_No = ventana.blit(mensaje, (450,300))		
+
+
+		for event in pygame.event.get():
+			if event.type == QUIT:
 				exit()
+
+			elif event.type == pygame.MOUSEBUTTONUP:				
+				
+				if opcion_Si.collidepoint(pygame.mouse.get_pos()):					
+					exit()
+
+
+				elif opcion_No.collidepoint(pygame.mouse.get_pos()):
+					ventana.blit(copia_ventana, (0,0))
+					pygame.display.flip()
+					return
+		pygame.display.flip()
+
 
 # Inicializacion
 pygame.init()
 ventana = pygame.display.set_mode((800, 600))
 pygame.display.set_caption("Reversi")
+
+clock = pygame.time.Clock()
 
 # Fuentes
 fuente = pygame.font.Font("BOOKOS.ttf", 40)
@@ -498,6 +601,7 @@ fichaNegraContador = pygame.transform.smoothscale(fichaNegra, (90,90))
 bienvenida()
 nombreJugador1 = pedirNombre(1)
 nombreJugador2 = pedirNombre(2)
+
 jugar_otra = "sí"
 while jugar_otra != "no":
 	turno, cambios_de_turno = 1, 0	
@@ -519,7 +623,7 @@ while jugar_otra != "no":
 			mensajeDosSaltosDeTurno()
 			break
 
-		quienJuega(turno, orden)
+		
 		jugada = obtenerJugada()
 
 		if esValida(tablero, jugada[0], jugada[1], turno):
