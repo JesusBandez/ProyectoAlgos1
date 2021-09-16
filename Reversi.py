@@ -137,26 +137,46 @@ def obtenerJugada() -> [int]:
 		dibujarFichas(tablero)
 		resultadoParcial(tablero)
 		quienJuega(turno, orden)
-	
-		if boton_salir.collidepoint(pygame.mouse.get_pos()):
+		nombresPuntaje(jugador_en_turno, nombreJugador1, nombreJugador2)
+
+		eventos = pygame.event.get()
+
+		posDelMouse = pygame.mouse.get_pos()
+
+		if boton_salir.collidepoint(posDelMouse):
 			mensaje = fuente.render("Salir", 1, (220,220,220))
 		else:
 			mensaje = fuente.render("Salir", 1, (0,0,0))
 		boton_salir = ventana.blit(mensaje, (700, 15))
+
+		if 200 <= posDelMouse[0] <= 600 and 50 <= posDelMouse[1] <= 450:
+			top = posDelMouse[0] - (posDelMouse[0]-50)%50
+			left = posDelMouse[1] - (posDelMouse[1]-200)%50
+			
+			color = (0, 255, 0)
+			for event in eventos:
+				if event.type == pygame.MOUSEBUTTONDOWN:
+					
+					color = (255, 255, 255)
+					
+				
+
+			pygame.draw.rect(ventana, color,
+				pygame.Rect(top+1, left+1, 47, 47), 2)
+			# Seguir arreglando el rectangulo
 		
 
-
-		for event in pygame.event.get():
+		for event in eventos:
 			if event.type == QUIT:
 				confirmar_salida()			
 			
 			elif event.type == pygame.MOUSEBUTTONUP:				
-				coordenadas = pygame.mouse.get_pos()
-				if (205 <= coordenadas[0] <= 605 
-						and 56 <= coordenadas[1] <= 456):
+				coordenadas = posDelMouse
+				if (200 <= coordenadas[0] <= 600 
+						and 50 <= coordenadas[1] <= 450):
 					pass
 
-				elif boton_salir.collidepoint(pygame.mouse.get_pos()):
+				elif boton_salir.collidepoint(posDelMouse):
 					confirmar_salida()
 					coordenadas = (0,0)	
 				else:
@@ -165,18 +185,13 @@ def obtenerJugada() -> [int]:
 		
 		clock.tick(30)
 
-		pygame.display.flip()				
-	i = 0
-	while i < 8:
-		j = 0
-		while j < 8:
-			# Traduccion de las coordenadas
-			if (205 + 50*j <= coordenadas[0] <= 205 + 50*(j+1) and 
-					56 + 50*i <= coordenadas[1] <= 56 + 50*(i+1)):
-				jugada = [i,j]			
-			j = j+1
-		i = i+1
+		pygame.display.flip()
+	
+	jugada = [(coordenadas[1]-50)//50, (coordenadas[0]-200)//50]
+
 	# Post condicion
+
+	
 	assert(0 <= jugada[0] < 8 and 0 <= jugada[1] < 8)
 	return jugada 
 
@@ -251,7 +266,6 @@ def dibujarFichas(tablero:[[int]]) -> "void":
 			j = j+1
 		i = i+1
 	
-
 def nombresPuntaje(
 	jugador_de_turno:int, nombreJugador1:str, 
 	nombreJugador2:str) -> [str]: 
@@ -277,7 +291,7 @@ def nombresPuntaje(
 		mensaje = fuente_peq.render(texto, 1, (0,0,0))
 		ventana.blit(mensaje, (30, 420))
 		blancas = nombreJugador1
-	pygame.display.flip()
+	
 	return [negras, blancas]
 
 def quienJuega(turno:int, orden:[str]) -> "void":
@@ -291,7 +305,6 @@ def quienJuega(turno:int, orden:[str]) -> "void":
 	ventana.blit(tablon, (180,460))
 	ventana.blit(mensaje, (180,460))
 	
-
 def error() -> "void":
 	"Mensaje de jugada inválida" 
 
@@ -421,7 +434,6 @@ def jugarOtra() -> str:
 		pygame.display.flip()
 
 	return jugar_otra									 
-
 
 def mensajeVictoria(tablero:[[int]], orden:[int]) -> "void":
 	"Muestra un mensaje de quien ha ganado la partida"
