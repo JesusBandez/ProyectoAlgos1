@@ -1,6 +1,6 @@
 # Un juego de Reversi
 # Autor: Jesús Bandez
-
+# Esta es una prueba para las branches
 import pygame
 from pygame.locals import *
 from sys import exit
